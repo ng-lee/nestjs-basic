@@ -4,9 +4,23 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { PostsModule } from './posts/posts.module';
 import { LoggerMiddleware } from './middleware/logger.middleware';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeormConfig } from './configs/typeorm.config';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [UsersModule, PostsModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true, // 전역적으로 ConfigService를 사용할 수 있도록 설정
+      envFilePath: `.env.${process.env.NODE_ENV}`,
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useClass: TypeormConfig,
+    }),
+    UsersModule,
+    PostsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
